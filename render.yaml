@@ -1,0 +1,16 @@
+# Déploiement en un clic sur Render (https://render.com) : New > Blueprint > ce dépôt.
+services:
+  - type: web
+    name: chanson-de-famille
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: ANTHROPIC_API_KEY   # votre clé d'API Anthropic (demandée au déploiement)
+        sync: false
+      - key: CODE_FAMILLE        # le code à donner à la famille (demandé au déploiement)
+        sync: false
+      - key: LIMITE_PAR_HEURE
+        value: "20"

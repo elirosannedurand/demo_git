@@ -6,11 +6,38 @@ import http from "node:http";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { createHash, timingSafeEqual } from "node:crypto";
 import Anthropic from "@anthropic-ai/sdk";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT) || 3000;
 const MODEL = "claude-sonnet-5-5";
+
+// Code d'accès familial : si CODE_FAMILLE est défini, il est demandé avant d'écrire une chanson.
+const CODE_FAMILLE = (process.env.CODE_FAMILLE || "").trim();
+const empreinte = (texte) => createHash("sha256").update(texte).digest();
+function codeValide(code) {
+  if (!CODE_FAMILLE) return true;
+  return timingSafeEqual(empreinte(String(code || "").trim()), empreinte(CODE_FAMILLE));
+}
+
+// Limite d'utilisation par adresse IP, pour protéger la facture en cas d'abus.
+const LIMITE_PAR_HEURE = Number(process.env.LIMITE_PAR_HEURE) || 20;
+const compteurs = new Map();
+function limiteAtteinte(ip) {
+  const maintenant = Date.now();
+  const recents = (compteurs.get(ip) || []).filter((t) => maintenant - t < 3_600_000);
+  if (recents.length >= LIMITE_PAR_HEURE) {
+    compteurs.set(ip, recents);
+    return true;
+  }
+  recents.push(maintenant);
+  compteurs.set(ip, recents);
+  return false;
+}
+function adresseIp(req) {
+  return String(req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").split(",")[0].trim();
+}
 
 // Lit ANTHROPIC_API_KEY dans l'environnement.
 const client = new Anthropic();
@@ -111,7 +138,16 @@ const STATIC = {
 
 const server = http.createServer(async (req, res) => {
   try {
+    if (req.method === "GET" && req.url === "/api/config") {
+      return sendJson(res, 200, { codeRequis: Boolean(CODE_FAMILLE) });
+    }
     if (req.method === "POST" && req.url === "/api/chanson") {
+      if (!codeValide(req.headers["x-code-famille"])) {
+        return sendJson(res, 401, { error: "Code d'accès incorrect.", codeRequis: true });
+      }
+      if (limiteAtteinte(adresseIp(req))) {
+        return sendJson(res, 429, { error: "Beaucoup de chansons d'un coup ! Réessayez dans un moment." });
+      }
       const answers = await readBody(req);
       if (!answers.destinataire || !answers.occasion) {
         return sendJson(res, 400, { error: "Indiquez au moins l'occasion et le prénom." });

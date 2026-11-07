@@ -47,6 +47,10 @@
   <p class="lead">Racontez-nous la personne à qui vous voulez faire plaisir : on écrit sa chanson.</p>
 
   <form id="formulaire" class="card">
+    <div id="bloc-code" hidden style="margin-bottom:22px">
+      <label for="code">Code familial <span class="hint">— demandez-le à la personne qui vous a envoyé le lien</span></label>
+      <input id="code" type="password" autocomplete="current-password">
+    </div>
     <h2>1. Pour qui, et pour quelle occasion ?</h2>
     <div class="row">
       <div>
@@ -143,8 +147,18 @@
   const paroles = document.getElementById("paroles");
   const boutons = [...document.querySelectorAll("button")];
 
+  const champCode = document.getElementById("code");
+  const blocCode = document.getElementById("bloc-code");
+  try { champCode.value = localStorage.getItem("code-famille") || ""; } catch {}
+  fetch("/api/config").then(r => r.json()).then(c => {
+    blocCode.hidden = !c.codeRequis;
+    champCode.required = c.codeRequis;
+  }).catch(() => {});
+
   function reponses() {
-    return Object.fromEntries(new FormData(form).entries());
+    const data = Object.fromEntries(new FormData(form).entries());
+    delete data.code;
+    return data;
   }
 
   async function ecrire(extra = {}) {
@@ -156,11 +170,13 @@
     try {
       const res = await fetch("/api/chanson", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "X-Code-Famille": champCode.value.trim() },
         body: JSON.stringify({ ...reponses(), ...extra }),
       });
       const data = await res.json().catch(() => ({}));
+      if (data.codeRequis) { blocCode.hidden = false; champCode.focus(); }
       if (!res.ok) throw new Error(data.error || "Une erreur est survenue.");
+      try { localStorage.setItem("code-famille", champCode.value.trim()); } catch {}
       paroles.textContent = data.chanson;
       resultat.hidden = false;
       document.getElementById("suno").hidden = false;
