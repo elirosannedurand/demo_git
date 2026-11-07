@@ -1,0 +1,17 @@
+{
+  "name": "chanson-de-famille",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Petite application familiale pour écrire des chansons personnalisées avec Claude.",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.6.0"
+  }
+}

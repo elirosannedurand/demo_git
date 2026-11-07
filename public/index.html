@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chanson de Famille</title>
+<style>
+  :root {
+    --bg: #faf6f1; --card: #ffffff; --ink: #2b2420; --muted: #74675d;
+    --accent: #b5532f; --accent-ink: #ffffff; --line: #e6ddd3; --soft: #f3ebe2;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #1b1714; --card: #25201c; --ink: #f1e9e1; --muted: #b3a597;
+            --accent: #e0835c; --accent-ink: #1b1714; --line: #3a322b; --soft: #2e2722; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font-family: Georgia, serif; font-size: 2.1rem; margin: 0 0 4px; }
+  .lead { color: var(--muted); margin: 0 0 28px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+          padding: 22px; margin-bottom: 20px; }
+  h2 { font-size: 1.05rem; margin: 0 0 14px; }
+  label { display: block; font-weight: 600; font-size: .92rem; margin: 14px 0 6px; }
+  .hint { font-weight: 400; color: var(--muted); }
+  input, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--line);
+         border-radius: 9px; background: var(--bg); color: var(--ink); font: inherit; }
+  textarea { min-height: 96px; resize: vertical; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+  @media (max-width: 560px) { .row { grid-template-columns: 1fr; } }
+  button { font: inherit; font-weight: 600; border: 0; border-radius: 10px; padding: 12px 20px;
+           cursor: pointer; background: var(--accent); color: var(--accent-ink); }
+  button.secondary { background: var(--soft); color: var(--ink); border: 1px solid var(--line); }
+  button:disabled { opacity: .6; cursor: wait; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+  #erreur { color: #c0392b; font-weight: 600; margin-top: 12px; }
+  #resultat pre { white-space: pre-wrap; font: 1.02rem/1.7 Georgia, serif; margin: 0; }
+  ol { padding-left: 20px; margin: 0; }
+  ol li { margin-bottom: 6px; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Chanson de Famille</h1>
+  <p class="lead">Racontez-nous la personne à qui vous voulez faire plaisir : on écrit sa chanson.</p>
+
+  <form id="formulaire" class="card">
+    <h2>1. Pour qui, et pour quelle occasion ?</h2>
+    <div class="row">
+      <div>
+        <label for="occasion">Occasion</label>
+        <select id="occasion" name="occasion" required>
+          <option>Anniversaire</option><option>Mariage</option><option>Anniversaire de mariage</option>
+          <option>Naissance</option><option>Fête des mères</option><option>Fête des pères</option>
+          <option>Départ à la retraite</option><option>Remerciement</option><option>Hommage</option>
+          <option>Juste pour dire « je t'aime »</option>
+        </select>
+      </div>
+      <div>
+        <label for="destinataire">Prénom de la personne</label>
+        <input id="destinataire" name="destinataire" required placeholder="ex. Mamie Jeanne">
+      </div>
+      <div>
+        <label for="lien">Votre lien avec elle / lui</label>
+        <input id="lien" name="lien" placeholder="ex. ses petits-enfants">
+      </div>
+      <div>
+        <label for="auteur">De la part de</label>
+        <input id="auteur" name="auteur" placeholder="ex. Léa, Hugo et Sam">
+      </div>
+    </div>
+
+    <h2 style="margin-top:24px">2. Ce qui la / le rend unique</h2>
+    <label for="souvenirs">Souvenirs et anecdotes <span class="hint">— plus c'est précis, plus c'est touchant</span></label>
+    <textarea id="souvenirs" name="souvenirs" placeholder="ex. Les crêpes du dimanche, les vacances à l'île de Ré, sa manie de chanter faux en voiture…"></textarea>
+    <label for="qualites">Ce qu'on aime chez elle / lui</label>
+    <textarea id="qualites" name="qualites" placeholder="ex. Sa patience, son rire, toujours là quand on a besoin d'elle"></textarea>
+    <label for="message">Le message à faire passer</label>
+    <input id="message" name="message" placeholder="ex. Merci pour tout, on t'aime fort">
+
+    <h2 style="margin-top:24px">3. L'ambiance</h2>
+    <div class="row">
+      <div>
+        <label for="style">Style musical</label>
+        <select id="style" name="style">
+          <option>Chanson française</option><option>Pop</option><option>Folk acoustique</option>
+          <option>Ballade piano</option><option>Variété festive</option><option>Rock</option>
+          <option>Jazz / swing</option><option>Country</option><option>Reggae</option><option>Comptine pour enfant</option>
+        </select>
+      </div>
+      <div>
+        <label for="ton">Ton</label>
+        <select id="ton" name="ton">
+          <option>Émouvant</option><option>Joyeux</option><option>Drôle et taquin</option>
+          <option>Romantique</option><option>Solennel</option>
+        </select>
+      </div>
+      <div>
+        <label for="langue">Langue</label>
+        <select id="langue" name="langue"><option>Français</option><option>Anglais</option></select>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="submit" id="ecrire">Écrire la chanson</button>
+    </div>
+    <div id="erreur" role="alert" hidden></div>
+  </form>
+
+  <section id="resultat" class="card" hidden aria-live="polite">
+    <h2>Votre chanson</h2>
+    <pre id="paroles"></pre>
+    <div class="actions">
+      <button type="button" id="copier">Copier les paroles</button>
+      <button type="button" class="secondary" id="autre">Une autre version</button>
+    </div>
+    <label for="retouches" style="margin-top:20px">Une retouche ? <span class="hint">— ex. « ajoute notre chien Filou », « refrain plus court »</span></label>
+    <textarea id="retouches" style="min-height:64px"></textarea>
+    <div class="actions"><button type="button" class="secondary" id="retoucher">Appliquer la retouche</button></div>
+  </section>
+
+  <section class="card">
+    <h2>Et pour la musique ?</h2>
+    <ol>
+      <li>Copiez les paroles ci-dessus.</li>
+      <li>Ouvrez un générateur de musique par IA (par exemple Suno, qui a une offre gratuite) et choisissez le mode « paroles personnalisées ».</li>
+      <li>Collez les paroles, et la ligne « Style » dans le champ du style musical.</li>
+      <li>Écoutez, choisissez la version préférée, et partagez-la !</li>
+    </ol>
+  </section>
+</main>
+
+<script>
+  const form = document.getElementById("formulaire");
+  const erreur = document.getElementById("erreur");
+  const resultat = document.getElementById("resultat");
+  const paroles = document.getElementById("paroles");
+  const boutons = [...document.querySelectorAll("button")];
+
+  function reponses() {
+    return Object.fromEntries(new FormData(form).entries());
+  }
+
+  async function ecrire(extra = {}) {
+    erreur.hidden = true;
+    boutons.forEach(b => b.disabled = true);
+    const ecrireBtn = document.getElementById("ecrire");
+    const libelle = ecrireBtn.textContent;
+    ecrireBtn.textContent = "Écriture en cours…";
+    try {
+      const res = await fetch("/api/chanson", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...reponses(), ...extra }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Une erreur est survenue.");
+      paroles.textContent = data.chanson;
+      resultat.hidden = false;
+      document.getElementById("retouches").value = "";
+      resultat.scrollIntoView({ behavior: "smooth", block: "start" });
+    } catch (e) {
+      erreur.textContent = e.message;
+      erreur.hidden = false;
+    } finally {
+      ecrireBtn.textContent = libelle;
+      boutons.forEach(b => b.disabled = false);
+    }
+  }
+
+  form.addEventListener("submit", e => { e.preventDefault(); ecrire(); });
+  document.getElementById("autre").addEventListener("click", () => ecrire());
+  document.getElementById("retoucher").addEventListener("click", () => {
+    const modifications = document.getElementById("retouches").value.trim();
+    if (!modifications) return;
+    ecrire({ precedente: paroles.textContent, modifications });
+  });
+  document.getElementById("copier").addEventListener("click", async e => {
+    try {
+      await navigator.clipboard.writeText(paroles.textContent);
+      e.target.textContent = "Copié !";
+    } catch { e.target.textContent = "Sélectionnez le texte pour copier"; }
+    setTimeout(() => e.target.textContent = "Copier les paroles", 2000);
+  });
+</script>
+</body>
+</html>
