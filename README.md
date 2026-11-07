@@ -29,7 +29,8 @@ Puis ouvrir http://localhost:3000 dans le navigateur.
 
 ## Fonctionnement
 
-- `public/index.html` : la page web (questionnaire, affichage des paroles, copie, retouches).
+- `public/index.html` : la page web (questionnaire, affichage des paroles, retouches, et boutons
+  pour copier le titre, le style et les paroles dans les champs du mode « Custom » de Suno).
 - `server.js` : un petit serveur qui garde la clé d'API secrète et appelle Claude Sonnet
   (`claude-sonnet-5-5`). Si une demande est refusée par Sonnet, l'API la relance
   automatiquement sur un modèle de secours (option `fallbacks: "default"`).

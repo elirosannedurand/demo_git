@@ -113,7 +113,6 @@
     <h2>Votre chanson</h2>
     <pre id="paroles"></pre>
     <div class="actions">
-      <button type="button" id="copier">Copier les paroles</button>
       <button type="button" class="secondary" id="autre">Une autre version</button>
     </div>
     <label for="retouches" style="margin-top:20px">Une retouche ? <span class="hint">— ex. « ajoute notre chien Filou », « refrain plus court »</span></label>
@@ -122,13 +121,18 @@
   </section>
 
   <section class="card">
-    <h2>Et pour la musique ?</h2>
+    <h2>Et pour la musique ? Avec Suno</h2>
     <ol>
-      <li>Copiez les paroles ci-dessus.</li>
-      <li>Ouvrez un générateur de musique par IA (par exemple Suno, qui a une offre gratuite) et choisissez le mode « paroles personnalisées ».</li>
-      <li>Collez les paroles, et la ligne « Style » dans le champ du style musical.</li>
-      <li>Écoutez, choisissez la version préférée, et partagez-la !</li>
+      <li><a href="https://suno.com/create" target="_blank" rel="noopener">Ouvrez Suno</a> (connexion gratuite) et activez le mode <strong>« Custom »</strong>.</li>
+      <li>Copiez chaque élément ci-dessous et collez-le dans le champ Suno correspondant.</li>
+      <li>Lancez la création : Suno propose deux versions. Gardez votre préférée, téléchargez-la et partagez-la !</li>
     </ol>
+    <div class="actions" id="suno" hidden>
+      <button type="button" data-copie="paroles">Copier les paroles → « Lyrics »</button>
+      <button type="button" class="secondary" data-copie="style">Copier le style → « Style of Music »</button>
+      <button type="button" class="secondary" data-copie="titre">Copier le titre → « Title »</button>
+    </div>
+    <p class="hint" id="suno-attente">Les boutons de copie apparaissent une fois la chanson écrite.</p>
   </section>
 </main>
 
@@ -159,6 +163,8 @@
       if (!res.ok) throw new Error(data.error || "Une erreur est survenue.");
       paroles.textContent = data.chanson;
       resultat.hidden = false;
+      document.getElementById("suno").hidden = false;
+      document.getElementById("suno-attente").hidden = true;
       document.getElementById("retouches").value = "";
       resultat.scrollIntoView({ behavior: "smooth", block: "start" });
     } catch (e) {
@@ -177,12 +183,28 @@
     if (!modifications) return;
     ecrire({ precedente: paroles.textContent, modifications });
   });
-  document.getElementById("copier").addEventListener("click", async e => {
-    try {
-      await navigator.clipboard.writeText(paroles.textContent);
-      e.target.textContent = "Copié !";
-    } catch { e.target.textContent = "Sélectionnez le texte pour copier"; }
-    setTimeout(() => e.target.textContent = "Copier les paroles", 2000);
+  // Découpe la réponse « Titre : … / Style : … / paroles » pour les champs de Suno.
+  function morceaux() {
+    const lignes = paroles.textContent.split("\n");
+    const champ = prefixe => {
+      const i = lignes.findIndex(l => l.trim().toLowerCase().startsWith(prefixe));
+      return i === -1 ? "" : lignes[i].slice(lignes[i].indexOf(":") + 1).trim();
+    };
+    const texte = lignes
+      .filter(l => !/^\s*(titre|style)\s*:/i.test(l))
+      .join("\n").trim();
+    return { titre: champ("titre"), style: champ("style"), paroles: texte };
+  }
+
+  document.querySelectorAll("[data-copie]").forEach(bouton => {
+    const libelle = bouton.textContent;
+    bouton.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(morceaux()[bouton.dataset.copie]);
+        bouton.textContent = "Copié !";
+      } catch { bouton.textContent = "Sélectionnez le texte pour copier"; }
+      setTimeout(() => bouton.textContent = libelle, 2000);
+    });
   });
 </script>
 </body>
